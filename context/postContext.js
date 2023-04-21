@@ -1,32 +1,49 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useReducer, useState } from 'react';
 
 const PostsContext = React.createContext({});
 
 export default PostsContext;
 
+function postReducer(state, action) {
+  switch (action.type) {
+    case 'addPosts': {
+      const newPosts = [...state];
+      action.posts.forEach(post => {
+        const exists = newPosts.find(
+          p => p._id === post._id
+        );
+        if (!exists) {
+          newPosts.push(post);
+        }
+      });
+      return newPosts;
+    }
+    case 'deletePost': {
+      return (state = state.filter(
+        el => el._id !== action.postId
+      ));
+    }
+    default:
+      return state;
+  }
+}
+
 export const PostProvider = ({ children }) => {
-  const [posts, setPosts] = useState([]);
+  const [posts, dispatch] = useReducer(postReducer, []);
   const [noMorePosts, setNoMorePosts] = useState(false);
 
   const deletePost = useCallback(postId => {
-    setPosts(value => {
-     return value = value.filter(el => el._id !== postId);
+    dispatch({
+      type: 'deletePost',
+      postId,
     });
   }, []);
 
   const setPostsFromSSR = useCallback(
     (postsFromSSR = []) => {
-      setPosts(value => {
-        const newPosts = [...value];
-        postsFromSSR.forEach(post => {
-          const exists = newPosts.find(
-            p => p._id === post._id
-          );
-          if (!exists) {
-            newPosts.push(post);
-          }
-        });
-        return newPosts;
+      dispatch({
+        type: 'addPosts',
+        posts: postsFromSSR,
       });
     },
     []
@@ -51,19 +68,9 @@ export const PostProvider = ({ children }) => {
         setNoMorePosts(true);
       }
 
-      // setPosts(prev => [...prev, ...postResults]);
-
-      setPosts(value => {
-        const newPosts = [...value];
-        postResults.forEach(post => {
-          const exists = newPosts.find(
-            p => p._id === post._id
-          );
-          if (!exists) {
-            newPosts.push(post);
-          }
-        });
-        return newPosts;
+      dispatch({
+        type: 'addPosts',
+        posts: postResults,
       });
     },
     []
