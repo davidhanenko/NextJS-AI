@@ -9,6 +9,7 @@ export default withApiAuthRequired(async function handler(
   res
 ) {
   try {
+    const { lastPostDate, getNewerPosts } = req.body;
     const {
       user: { sub },
     } = await getSession(req, res);
@@ -21,7 +22,6 @@ export default withApiAuthRequired(async function handler(
         auth0Id: sub,
       });
 
-    const { lastPostDate, getNewerPosts } = req.body;
 
     const posts = await db
       .collection('posts')

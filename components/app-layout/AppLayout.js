@@ -26,7 +26,7 @@ export const AppLayout = ({
       const exists = postsFromSSR.find(
         post => post._id === postId
       );
-      postCreated;
+  
       if (!exists)
         getPosts({
           getNewerPosts: true,

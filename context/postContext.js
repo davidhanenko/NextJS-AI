@@ -8,6 +8,12 @@ export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [noMorePosts, setNoMorePosts] = useState(false);
 
+  const deletePost = useCallback(postId => {
+    setPosts(value => {
+     return value = value.filter(el => el._id !== postId);
+    });
+  }, []);
+
   const setPostsFromSSR = useCallback(
     (postsFromSSR = []) => {
       setPosts(value => {
@@ -33,7 +39,10 @@ export const PostProvider = ({ children }) => {
         headers: {
           'content-type': 'application/json',
         },
-        body: JSON.stringify({ lastPostDate, getNewerPosts }),
+        body: JSON.stringify({
+          lastPostDate,
+          getNewerPosts,
+        }),
       });
       const json = await result.json();
       const postResults = json.posts || [];
@@ -67,6 +76,7 @@ export const PostProvider = ({ children }) => {
         setPostsFromSSR,
         getPosts,
         noMorePosts,
+        deletePost,
       }}
     >
       {children}
